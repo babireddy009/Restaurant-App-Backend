@@ -148,7 +148,7 @@ SIMPLE_JWT = {
 # CORS Settings
 CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://localhost:5174,http://localhost:3000'
+    'http://localhost:5173,http://localhost:5174,http://localhost:3000,https://restaurant-app-frontend-n4mn-o0746ezp2.vercel.app'
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
 
