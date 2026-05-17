@@ -11,7 +11,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-restaurant-dev-key-change-
 
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*,localhost,127.0.0.1,.onrender.com,msrrayalaseemaruchulu.com,www.msrrayalaseemaruchulu.com').split(',')
 
 # ─── Daphne MUST be before everything for WebSockets, Jazzmin before admin ─
 INSTALLED_APPS = [
@@ -148,7 +148,7 @@ SIMPLE_JWT = {
 # CORS Settings
 CORS_ALLOWED_ORIGINS = os.getenv(
     'CORS_ALLOWED_ORIGINS',
-    'http://localhost:5173,http://localhost:5174,http://localhost:3000,https://restaurant-app-frontend-n4mn-o0746ezp2.vercel.app'
+    'http://localhost:5173,http://localhost:5174,http://localhost:3000,https://restaurant-app-frontend-n4mn-o0746ezp2.vercel.app,https://msrrayalaseemaruchulu.com,https://www.msrrayalaseemaruchulu.com'
 ).split(',')
 CORS_ALLOW_CREDENTIALS = True
 
