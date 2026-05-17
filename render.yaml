@@ -17,7 +17,7 @@ services:
       - key: ALLOWED_HOSTS
         value: .onrender.com,localhost,msrrayalaseemaruchulu.com,www.msrrayalaseemaruchulu.com
       - key: CORS_ALLOWED_ORIGINS
-        value: https://msrrayalaseemaruchulu.com,https://www.msrrayalaseemaruchulu.com,http://localhost:5173,https://restaurant-app-frontend-n4mn-o0746ezp2.vercel.app,https://msrrayalaseemaruchulu.vercel.app
+        value: https://msrrayalaseemaruchulu.com,https://www.msrrayalaseemaruchulu.com,http://localhost:5173,https://restaurant-app-frontend-n4mn-o0746ezp2.vercel.app,https://msrrayalaseemaruchulu.vercel.app,https://restaurant-frontend-one-mu.vercel.app
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
