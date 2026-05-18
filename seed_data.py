@@ -103,9 +103,9 @@ if created:
     staff_user.save()
     print("Created staff user: staff / staff@123")
 
-print("\n✅ Seed data loaded successfully!")
-print("📊 Categories:", Category.objects.count())
-print("🍽️  Menu Items:", MenuItem.objects.count())
-print("\n🔑 Default Credentials:")
+print("\n[OK] Seed data loaded successfully!")
+print("Categories:", Category.objects.count())
+print("Menu Items:", MenuItem.objects.count())
+print("\n[Default Credentials]")
 print("   Admin: (create with: python manage.py createsuperuser)")
 print("   Staff: username=staff, password=staff@123")
