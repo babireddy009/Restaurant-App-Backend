@@ -22,3 +22,5 @@ services:
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        value: 84378621923-ke55iqngsk8f2bsikud9956t4co3m68f.apps.googleusercontent.com
