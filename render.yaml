@@ -24,3 +24,7 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_ID
         value: 874943552282-inuauad2ma5il7e1mlkv93jrbhlfe92l.apps.googleusercontent.com
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
