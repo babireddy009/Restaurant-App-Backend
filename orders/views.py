@@ -25,14 +25,21 @@ class OrderListCreateView(generics.ListCreateAPIView):
         return Order.objects.filter(user=self.request.user).select_related('user').prefetch_related('items__menu_item')
 
     def create(self, request, *args, **kwargs):
-        serializer = CreateOrderSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        order = serializer.save()
-        
-        if order.payment_method == 'cod':
-            send_order_confirmation_email(order)
+        try:
+            serializer = CreateOrderSerializer(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            order = serializer.save()
             
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+            if order.payment_method == 'cod':
+                send_order_confirmation_email(order)
+                
+            return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            import traceback
+            return Response({
+                'error': str(e),
+                'traceback': traceback.format_exc()
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class OrderDetailView(generics.RetrieveAPIView):
