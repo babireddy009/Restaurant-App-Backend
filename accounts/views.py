@@ -186,4 +186,4 @@ class TestEmailView(APIView):
                 "error": str(e),
                 "traceback": traceback.format_exc(),
                 "smtp_user": settings.EMAIL_HOST_USER
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            }, status=status.HTTP_400_BAD_REQUEST)
