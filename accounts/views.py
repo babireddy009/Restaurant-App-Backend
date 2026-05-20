@@ -154,29 +154,50 @@ class GoogleLoginView(APIView):
 
 
 class TestEmailView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        import os
+        return Response({
+            "EMAIL_HOST_USER": getattr(settings, 'EMAIL_HOST_USER', None),
+            "EMAIL_HOST_PASSWORD_SET": bool(getattr(settings, 'EMAIL_HOST_PASSWORD', None)),
+            "EMAIL_HOST_PASSWORD_LEN": len(settings.EMAIL_HOST_PASSWORD) if getattr(settings, 'EMAIL_HOST_PASSWORD', None) else 0,
+            "RAZORPAY_KEY_ID": getattr(settings, 'RAZORPAY_KEY_ID', None),
+            "RAZORPAY_KEY_SECRET_SET": bool(getattr(settings, 'RAZORPAY_KEY_SECRET', None)),
+            "env_keys": list(os.environ.keys())
+        })
 
     def post(self, request):
         user = request.user
-        if not user.email:
+        if not user or user.is_anonymous:
+            # Fallback for AllowAny testing
+            email = request.data.get('email')
+            if not email:
+                return Response({"error": "For anonymous test, please provide email in body"}, status=status.HTTP_400_BAD_REQUEST)
+            username = "Test Guest"
+        else:
+            email = user.email
+            username = user.username
+
+        if not email:
             return Response({"error": "Your user account does not have an email address set."}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            if not settings.EMAIL_HOST_USER:
+            if not getattr(settings, 'EMAIL_HOST_USER', None):
                 return Response({
                     "error": "EMAIL_HOST_USER environment variable is not set on the server."
                 }, status=status.HTTP_400_BAD_REQUEST)
                 
             send_mail(
                 'Test Email from MSR Rayalasema Ruchulu',
-                f'Hello {user.username},\n\nIf you are reading this, your SMTP settings are working perfectly on the server!',
+                f'Hello {username},\n\nIf you are reading this, your SMTP settings are working perfectly on the server!',
                 settings.EMAIL_HOST_USER,
-                [user.email],
+                [email],
                 fail_silently=False,
             )
             return Response({
                 "status": "success",
-                "message": f"Test email sent successfully to {user.email}",
+                "message": f"Test email sent successfully to {email}",
                 "smtp_user": settings.EMAIL_HOST_USER
             })
         except Exception as e:
@@ -185,5 +206,5 @@ class TestEmailView(APIView):
                 "status": "failed",
                 "error": str(e),
                 "traceback": traceback.format_exc(),
-                "smtp_user": settings.EMAIL_HOST_USER
+                "smtp_user": getattr(settings, 'EMAIL_HOST_USER', None)
             }, status=status.HTTP_400_BAD_REQUEST)
