@@ -18,17 +18,17 @@ from menu.models import MenuItem
 IMAGE_MAP = {
     # Starters
     'Paneer Tikka':              '/images/paneer_tikka.png',
-    'Chicken Tikka':             '/images/paneer_tikka.png',
+    'Chicken Tikka':             '/images/chicken_tikka.png',
     'Seekh Kebab':               '/images/paneer_tikka.png',
     'Veg Spring Rolls':          '/images/paneer_tikka.png',
     # Main Course
     'Butter Chicken':            '/images/butter_chicken.png',
-    'Palak Paneer':              '/images/butter_chicken.png',
-    'Dal Makhani':               '/images/butter_chicken.png',
-    'Mutton Rogan Josh':         '/images/butter_chicken.png',
+    'Palak Paneer':              '/images/palak_paneer.png',
+    'Dal Makhani':               '/images/dal_makhani.png',
+    'Mutton Rogan Josh':         '/images/mutton_rogan.png',
     # Biryani
     'Chicken Biryani':           '/images/chicken_biryani.png',
-    'Hyderabadi Mutton Biryani': '/images/chicken_biryani.png',
+    'Hyderabadi Mutton Biryani': '/images/mutton_biryani.png',
     'Veg Biryani':               '/images/veg_biryani.png',
     'Jeera Rice':                '/images/veg_biryani.png',
     # Breads
@@ -41,12 +41,14 @@ IMAGE_MAP = {
     'Rasgulla':                  '/images/gulab_jamun.png',
     # Beverages
     'Mango Lassi':               '/images/mango_lassi.png',
-    'Sweet Lassi':               '/images/mango_lassi.png',
+    'Sweet Lassi':               '/images/sweet_lassi.png',
     'Masala Chai':               '/images/mango_lassi.png',
     # Burgers
     'Classic Chicken Burger':    '/images/chicken_burger.png',
     'Double Patty Burger':       '/images/chicken_burger.png',
-    'Veg Aloo Tikki Burger':     '/images/chicken_burger.png',
+    'Veg Aloo Tikki Burger':     '/images/veg_burger.png',
+    # Pizza
+    'Margherita Pizza':          '/images/margherita.png',
 }
 
 updated = 0

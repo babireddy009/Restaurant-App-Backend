@@ -34,47 +34,47 @@ for cat_data in categories_data:
 # Create sample menu items
 menu_items = [
     # Starters
-    {'category': 'Starters', 'name': 'Paneer Tikka', 'description': 'Marinated cottage cheese grilled to perfection with spices', 'price': 249.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.5, 'rating_count': 120},
-    {'category': 'Starters', 'name': 'Chicken Tikka', 'description': 'Tender chicken marinated in yogurt and spices, grilled in tandoor', 'price': 299.00, 'is_vegetarian': False, 'is_featured': True, 'is_bestseller': True, 'spice_level': 'medium', 'rating': 4.7, 'rating_count': 250},
-    {'category': 'Starters', 'name': 'Veg Spring Rolls', 'description': 'Crispy rolls filled with fresh vegetables and noodles', 'price': 179.00, 'is_vegetarian': True, 'spice_level': 'mild', 'rating': 4.2, 'rating_count': 80},
-    {'category': 'Starters', 'name': 'Seekh Kebab', 'description': 'Minced mutton kebabs with aromatic spices', 'price': 329.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'hot', 'rating': 4.6, 'rating_count': 175},
+    {'category': 'Starters', 'name': 'Paneer Tikka', 'description': 'Marinated cottage cheese grilled to perfection with spices', 'price': 249.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.5, 'rating_count': 120, 'image': '/images/paneer_tikka.png'},
+    {'category': 'Starters', 'name': 'Chicken Tikka', 'description': 'Tender chicken marinated in yogurt and spices, grilled in tandoor', 'price': 299.00, 'is_vegetarian': False, 'is_featured': True, 'is_bestseller': True, 'spice_level': 'medium', 'rating': 4.7, 'rating_count': 250, 'image': '/images/chicken_tikka.png'},
+    {'category': 'Starters', 'name': 'Veg Spring Rolls', 'description': 'Crispy rolls filled with fresh vegetables and noodles', 'price': 179.00, 'is_vegetarian': True, 'spice_level': 'mild', 'rating': 4.2, 'rating_count': 80, 'image': '/images/paneer_tikka.png'},
+    {'category': 'Starters', 'name': 'Seekh Kebab', 'description': 'Minced mutton kebabs with aromatic spices', 'price': 329.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'hot', 'rating': 4.6, 'rating_count': 175, 'image': '/images/paneer_tikka.png'},
 
     # Main Course
     {'category': 'Main Course', 'name': 'Butter Chicken', 'description': 'Tender chicken in rich tomato-based creamy sauce', 'price': 349.00, 'is_vegetarian': False, 'is_featured': True, 'is_bestseller': True, 'spice_level': 'mild', 'rating': 4.8, 'rating_count': 500, 'image': '/images/butter_chicken.png'},
-    {'category': 'Main Course', 'name': 'Palak Paneer', 'description': 'Fresh cottage cheese cubes in smooth spinach gravy', 'price': 279.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'mild', 'rating': 4.4, 'rating_count': 200},
-    {'category': 'Main Course', 'name': 'Dal Makhani', 'description': 'Slow-cooked black lentils with butter and cream', 'price': 229.00, 'is_vegetarian': True, 'is_bestseller': True, 'spice_level': 'mild', 'rating': 4.5, 'rating_count': 180},
-    {'category': 'Main Course', 'name': 'Mutton Rogan Josh', 'description': 'Kashmiri-style mutton curry with bold spices', 'price': 429.00, 'is_vegetarian': False, 'spice_level': 'hot', 'rating': 4.7, 'rating_count': 140},
+    {'category': 'Main Course', 'name': 'Palak Paneer', 'description': 'Fresh cottage cheese cubes in smooth spinach gravy', 'price': 279.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'mild', 'rating': 4.4, 'rating_count': 200, 'image': '/images/palak_paneer.png'},
+    {'category': 'Main Course', 'name': 'Dal Makhani', 'description': 'Slow-cooked black lentils with butter and cream', 'price': 229.00, 'is_vegetarian': True, 'is_bestseller': True, 'spice_level': 'mild', 'rating': 4.5, 'rating_count': 180, 'image': '/images/dal_makhani.png'},
+    {'category': 'Main Course', 'name': 'Mutton Rogan Josh', 'description': 'Kashmiri-style mutton curry with bold spices', 'price': 429.00, 'is_vegetarian': False, 'spice_level': 'hot', 'rating': 4.7, 'rating_count': 140, 'image': '/images/mutton_rogan.png'},
 
     # Biryani
     {'category': 'Biryani & Rice', 'name': 'Chicken Biryani', 'description': 'Fragrant basmati rice cooked with tender chicken and whole spices', 'price': 359.00, 'is_vegetarian': False, 'is_featured': True, 'is_bestseller': True, 'spice_level': 'medium', 'rating': 4.9, 'rating_count': 650, 'image': '/images/chicken_biryani.png'},
     {'category': 'Biryani & Rice', 'name': 'Veg Biryani', 'description': 'Aromatic basmati rice with seasonal vegetables and saffron', 'price': 279.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.3, 'rating_count': 220, 'image': '/images/veg_biryani.png'},
-    {'category': 'Biryani & Rice', 'name': 'Hyderabadi Mutton Biryani', 'description': 'Slow-cooked dum biryani with tender mutton pieces', 'price': 449.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'hot', 'rating': 4.8, 'rating_count': 380},
-    {'category': 'Biryani & Rice', 'name': 'Jeera Rice', 'description': 'Light basmati rice tempered with cumin seeds', 'price': 129.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.1, 'rating_count': 90},
+    {'category': 'Biryani & Rice', 'name': 'Hyderabadi Mutton Biryani', 'description': 'Slow-cooked dum biryani with tender mutton pieces', 'price': 449.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'hot', 'rating': 4.8, 'rating_count': 380, 'image': '/images/mutton_biryani.png'},
+    {'category': 'Biryani & Rice', 'name': 'Jeera Rice', 'description': 'Light basmati rice tempered with cumin seeds', 'price': 129.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.1, 'rating_count': 90, 'image': '/images/veg_biryani.png'},
 
     # Breads
-    {'category': 'Breads', 'name': 'Butter Naan', 'description': 'Soft leavened bread baked in tandoor with butter', 'price': 49.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.5, 'rating_count': 300},
+    {'category': 'Breads', 'name': 'Butter Naan', 'description': 'Soft leavened bread baked in tandoor with butter', 'price': 49.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.5, 'rating_count': 300, 'image': '/images/garlic_naan.png'},
     {'category': 'Breads', 'name': 'Garlic Naan', 'description': 'Naan topped with minced garlic and coriander', 'price': 59.00, 'is_vegetarian': True, 'is_bestseller': True, 'spice_level': 'none', 'rating': 4.7, 'rating_count': 280, 'image': '/images/garlic_naan.png'},
-    {'category': 'Breads', 'name': 'Cheese Naan', 'description': 'Stuffed naan filled with melted cheese', 'price': 89.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.6, 'rating_count': 150},
+    {'category': 'Breads', 'name': 'Cheese Naan', 'description': 'Stuffed naan filled with melted cheese', 'price': 89.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.6, 'rating_count': 150, 'image': '/images/garlic_naan.png'},
 
     # Desserts
     {'category': 'Desserts', 'name': 'Gulab Jamun', 'description': 'Soft khoya dumplings soaked in rose-flavored syrup', 'price': 99.00, 'is_vegetarian': True, 'is_bestseller': True, 'spice_level': 'none', 'rating': 4.7, 'rating_count': 420, 'image': '/images/gulab_jamun.png'},
-    {'category': 'Desserts', 'name': 'Kulfi Falooda', 'description': 'Traditional Indian ice cream with falooda noodles', 'price': 149.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.6, 'rating_count': 200},
-    {'category': 'Desserts', 'name': 'Rasgulla', 'description': 'Spongy cottage cheese balls in light sugar syrup', 'price': 89.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.4, 'rating_count': 160},
+    {'category': 'Desserts', 'name': 'Kulfi Falooda', 'description': 'Traditional Indian ice cream with falooda noodles', 'price': 149.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.6, 'rating_count': 200, 'image': '/images/gulab_jamun.png'},
+    {'category': 'Desserts', 'name': 'Rasgulla', 'description': 'Spongy cottage cheese balls in light sugar syrup', 'price': 89.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.4, 'rating_count': 160, 'image': '/images/gulab_jamun.png'},
 
     # Beverages
-    {'category': 'Beverages', 'name': 'Sweet Lassi', 'description': 'Chilled yogurt drink blended with sugar and rose water', 'price': 79.00, 'is_vegetarian': True, 'is_bestseller': True, 'spice_level': 'none', 'rating': 4.6, 'rating_count': 310},
+    {'category': 'Beverages', 'name': 'Sweet Lassi', 'description': 'Chilled yogurt drink blended with sugar and rose water', 'price': 79.00, 'is_vegetarian': True, 'is_bestseller': True, 'spice_level': 'none', 'rating': 4.6, 'rating_count': 310, 'image': '/images/sweet_lassi.png'},
     {'category': 'Beverages', 'name': 'Mango Lassi', 'description': 'Creamy mango and yogurt blended drink', 'price': 99.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.8, 'rating_count': 270, 'image': '/images/mango_lassi.png'},
-    {'category': 'Beverages', 'name': 'Masala Chai', 'description': 'Aromatic spiced tea with ginger and cardamom', 'price': 49.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.5, 'rating_count': 200},
+    {'category': 'Beverages', 'name': 'Masala Chai', 'description': 'Aromatic spiced tea with ginger and cardamom', 'price': 49.00, 'is_vegetarian': True, 'spice_level': 'none', 'rating': 4.5, 'rating_count': 200, 'image': '/images/mango_lassi.png'},
 
     # Pizza
-    {'category': 'Pizza', 'name': 'Margherita Pizza', 'description': 'Classic pizza with tomato sauce, mozzarella and fresh basil', 'price': 249.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.4, 'rating_count': 180},
-    {'category': 'Pizza', 'name': 'Chicken BBQ Pizza', 'description': 'Grilled chicken with BBQ sauce, onions and peppers', 'price': 349.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'mild', 'rating': 4.6, 'rating_count': 250},
-    {'category': 'Pizza', 'name': 'Paneer Tikka Pizza', 'description': 'Indian fusion pizza with tandoor paneer and tikka sauce', 'price': 299.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.5, 'rating_count': 190},
+    {'category': 'Pizza', 'name': 'Margherita Pizza', 'description': 'Classic pizza with tomato sauce, mozzarella and fresh basil', 'price': 249.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'none', 'rating': 4.4, 'rating_count': 180, 'image': '/images/margherita.png'},
+    {'category': 'Pizza', 'name': 'Chicken BBQ Pizza', 'description': 'Grilled chicken with BBQ sauce, onions and peppers', 'price': 349.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'mild', 'rating': 4.6, 'rating_count': 250, 'image': '/images/margherita.png'},
+    {'category': 'Pizza', 'name': 'Paneer Tikka Pizza', 'description': 'Indian fusion pizza with tandoor paneer and tikka sauce', 'price': 299.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.5, 'rating_count': 190, 'image': '/images/margherita.png'},
 
     # Burgers
     {'category': 'Burgers', 'name': 'Classic Chicken Burger', 'description': 'Crispy fried chicken with lettuce, tomato and mayo', 'price': 199.00, 'is_vegetarian': False, 'is_bestseller': True, 'spice_level': 'mild', 'rating': 4.5, 'rating_count': 320, 'image': '/images/chicken_burger.png'},
-    {'category': 'Burgers', 'name': 'Veg Aloo Tikki Burger', 'description': 'Spiced potato patty with fresh veggies and green chutney', 'price': 149.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.3, 'rating_count': 200},
-    {'category': 'Burgers', 'name': 'Double Patty Burger', 'description': 'Double beef patty with cheese, bacon and special sauce', 'price': 279.00, 'is_vegetarian': False, 'spice_level': 'mild', 'rating': 4.7, 'rating_count': 150},
+    {'category': 'Burgers', 'name': 'Veg Aloo Tikki Burger', 'description': 'Spiced potato patty with fresh veggies and green chutney', 'price': 149.00, 'is_vegetarian': True, 'is_featured': True, 'spice_level': 'medium', 'rating': 4.3, 'rating_count': 200, 'image': '/images/veg_burger.png'},
+    {'category': 'Burgers', 'name': 'Double Patty Burger', 'description': 'Double beef patty with cheese, bacon and special sauce', 'price': 279.00, 'is_vegetarian': False, 'spice_level': 'mild', 'rating': 4.7, 'rating_count': 150, 'image': '/images/chicken_burger.png'},
 ]
 
 
