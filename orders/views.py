@@ -35,10 +35,9 @@ class OrderListCreateView(generics.ListCreateAPIView):
                 
             return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            import traceback
+            logger.exception("Failed to create order")
             return Response({
-                'error': str(e),
-                'traceback': traceback.format_exc()
+                'error': 'An unexpected error occurred while placing the order. Please try again.'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
