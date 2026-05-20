@@ -8,20 +8,13 @@ def _send_customer_email(order, subject, message):
     if not order.user or not order.user.email:
         return  # Missing email address
 
-    # Only attempt to send if SMTP credentials actually exist
-    if not settings.EMAIL_HOST_USER:
-        return
-
-    try:
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[order.user.email],
-            fail_silently=False,
-        )
-    except Exception as e:
-        logger.error(f"Failed to send email to {order.user.email} -> {str(e)}")
+    from core.email_utils import send_mail_async
+    send_mail_async(
+        subject=subject,
+        message=message,
+        recipient_list=[order.user.email],
+        fail_silently=False,
+    )
 
 
 def send_order_confirmation_email(order):

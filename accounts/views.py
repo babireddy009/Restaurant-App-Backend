@@ -31,17 +31,13 @@ class SendOTPView(APIView):
 
         # In a real app, send Email or SMS here via Twilio/SendGrid
         if "@" in identifier:
-            try:
-                if settings.EMAIL_HOST_USER:
-                    send_mail(
-                        'Your OTP Verification Code',
-                        f'Welcome to MSR Rayalasema Ruchulu! Your secure OTP code is: {otp.otp_code}\n\nThis code will expire in 10 minutes.',
-                        settings.EMAIL_HOST_USER,
-                        [identifier],
-                        fail_silently=False,
-                    )
-            except Exception as e:
-                print(f"Warning: Could not send email via SMTP. Check your .env credentials! ({e})")
+            from core.email_utils import send_mail_async
+            send_mail_async(
+                'Your OTP Verification Code',
+                f'Welcome to MSR Rayalasema Ruchulu! Your secure OTP code is: {otp.otp_code}\n\nThis code will expire in 10 minutes.',
+                [identifier],
+                fail_silently=False,
+            )
                 
         print(f"\n==========================================")
         print(f" MOCK OTP SENT ")
