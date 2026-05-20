@@ -158,14 +158,41 @@ class TestEmailView(APIView):
 
     def get(self, request):
         import os
-        return Response({
+        from django.core.mail import send_mail
+        import traceback
+
+        send_test = request.GET.get('send') == 'true'
+        to_email = request.GET.get('to')
+
+        res_data = {
             "EMAIL_HOST_USER": getattr(settings, 'EMAIL_HOST_USER', None),
             "EMAIL_HOST_PASSWORD_SET": bool(getattr(settings, 'EMAIL_HOST_PASSWORD', None)),
             "EMAIL_HOST_PASSWORD_LEN": len(settings.EMAIL_HOST_PASSWORD) if getattr(settings, 'EMAIL_HOST_PASSWORD', None) else 0,
             "RAZORPAY_KEY_ID": getattr(settings, 'RAZORPAY_KEY_ID', None),
             "RAZORPAY_KEY_SECRET_SET": bool(getattr(settings, 'RAZORPAY_KEY_SECRET', None)),
-            "env_keys": list(os.environ.keys())
-        })
+        }
+
+        if send_test:
+            if not to_email:
+                res_data["send_status"] = "failed"
+                res_data["error"] = "Provide 'to' query parameter"
+                return Response(res_data)
+            try:
+                send_mail(
+                    'Sync GET Test Email',
+                    'Testing Gmail SMTP configuration directly in GET view.',
+                    settings.EMAIL_HOST_USER,
+                    [to_email],
+                    fail_silently=False,
+                )
+                res_data["send_status"] = "success"
+                res_data["message"] = f"Email sent successfully to {to_email}"
+            except Exception as e:
+                res_data["send_status"] = "failed"
+                res_data["error"] = str(e)
+                res_data["traceback"] = traceback.format_exc()
+        
+        return Response(res_data)
 
     def post(self, request):
         user = request.user
