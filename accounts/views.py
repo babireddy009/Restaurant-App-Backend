@@ -151,3 +151,39 @@ class GoogleLoginView(APIView):
             'access': str(refresh.access_token),
             'user': UserProfileSerializer(user).data
         }, status=status.HTTP_200_OK)
+
+
+class TestEmailView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        user = request.user
+        if not user.email:
+            return Response({"error": "Your user account does not have an email address set."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            if not settings.EMAIL_HOST_USER:
+                return Response({
+                    "error": "EMAIL_HOST_USER environment variable is not set on the server."
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+            send_mail(
+                'Test Email from MSR Rayalasema Ruchulu',
+                f'Hello {user.username},\n\nIf you are reading this, your SMTP settings are working perfectly on the server!',
+                settings.EMAIL_HOST_USER,
+                [user.email],
+                fail_silently=False,
+            )
+            return Response({
+                "status": "success",
+                "message": f"Test email sent successfully to {user.email}",
+                "smtp_user": settings.EMAIL_HOST_USER
+            })
+        except Exception as e:
+            import traceback
+            return Response({
+                "status": "failed",
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+                "smtp_user": settings.EMAIL_HOST_USER
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
