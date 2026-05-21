@@ -24,6 +24,18 @@ class CustomUser(AbstractUser):
     def is_staff_member(self):
         return self.role in ('staff', 'admin')
 
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'admin'
+            self.is_staff = True
+        elif self.role == 'admin':
+            self.is_staff = True
+            self.is_superuser = True
+        elif self.role == 'staff':
+            self.is_staff = True
+            self.is_superuser = False
+        super().save(*args, **kwargs)
+
 
 class OTPVerification(models.Model):
     identifier = models.CharField(max_length=150)  # Email or phone number

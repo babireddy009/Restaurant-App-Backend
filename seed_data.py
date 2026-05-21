@@ -88,24 +88,54 @@ for item_data in menu_items:
     )
     print(f"{'Created' if created else 'Updated'}: MenuItem '{item.name}' (Rs.{item.price})")
 
+# Create default admin superuser
+admin_user, created_admin = User.objects.get_or_create(
+    username='admin',
+    defaults={
+        'email': 'admin@msrruchulu.com',
+        'role': 'admin',
+        'is_staff': True,
+        'is_superuser': True,
+        'first_name': 'Admin',
+        'last_name': 'User',
+    }
+)
+if created_admin:
+    admin_user.set_password('admin@123')
+    admin_user.save()
+    print("Created admin user: admin / admin@123")
+else:
+    admin_user.is_staff = True
+    admin_user.is_superuser = True
+    admin_user.role = 'admin'
+    admin_user.save()
+    print("Ensured admin user has superuser permissions")
+
 # Create default staff user
-staff_user, created = User.objects.get_or_create(
+staff_user, created_staff = User.objects.get_or_create(
     username='staff',
     defaults={
         'email': 'staff@restaurant.com',
         'role': 'staff',
+        'is_staff': True,
+        'is_superuser': False,
         'first_name': 'Staff',
         'last_name': 'User',
     }
 )
-if created:
+if created_staff:
     staff_user.set_password('staff@123')
     staff_user.save()
     print("Created staff user: staff / staff@123")
+else:
+    staff_user.is_staff = True
+    staff_user.role = 'staff'
+    staff_user.save()
+    print("Ensured staff user has staff permissions")
 
 print("\n[OK] Seed data loaded successfully!")
 print("Categories:", Category.objects.count())
 print("Menu Items:", MenuItem.objects.count())
 print("\n[Default Credentials]")
-print("   Admin: (create with: python manage.py createsuperuser)")
+print("   Admin: username=admin, password=admin@123")
 print("   Staff: username=staff, password=staff@123")

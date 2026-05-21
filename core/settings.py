@@ -155,7 +155,7 @@ CORS_ALLOW_CREDENTIALS = True
 # CSRF Settings
 CSRF_TRUSTED_ORIGINS = os.getenv(
     'CSRF_TRUSTED_ORIGINS',
-    'https://msrrayalaseemaruchulu.com,https://www.msrrayalaseemaruchulu.com'
+    'https://msrrayalaseemaruchulu.com,https://www.msrrayalaseemaruchulu.com,https://restaurant-app-backend-g8w3.onrender.com,https://*.onrender.com'
 ).split(',')
 
 # Razorpay
