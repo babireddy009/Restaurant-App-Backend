@@ -10,6 +10,8 @@ services:
       python seed_data.py
     startCommand: python manage.py migrate && python seed_data.py && gunicorn core.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
