@@ -288,3 +288,28 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 # Brevo HTTP Email API Key (Free tier SMTP bypass)
 BREVO_API_KEY = os.getenv('BREVO_API_KEY')
 
+
+# ==============================================================================
+# Monkey-patch Django 4.2 copy.copy incompatibility with Python 3.14+
+# ==============================================================================
+try:
+    import copy
+    import django.template.context
+    
+    def patched_copy(self):
+        duplicate = self.__class__.__new__(self.__class__)
+        for k, v in self.__dict__.items():
+            if k == 'dicts':
+                duplicate.dicts = self.dicts[:]
+            elif k == 'render_context':
+                duplicate.render_context = copy.copy(v)
+            else:
+                setattr(duplicate, k, v)
+        return duplicate
+
+    django.template.context.BaseContext.__copy__ = patched_copy
+    print("[PATCH] Successfully patched Django BaseContext.__copy__ for Python 3.14+ compatibility")
+except Exception as patch_err:
+    print(f"[PATCH] Failed to patch Django BaseContext: {patch_err}")
+
+
