@@ -188,7 +188,7 @@ JAZZMIN_SETTINGS = {
     # ── User menu (top right) ──────────────────────────────────────────
     "usermenu_links": [
         {"name": "🌐 Front End",  "url": "http://localhost:5173", "new_window": True},
-        {"name": "⚙️  Profile",   "url": "admin:accounts_customuser_change", "icon": "fas fa-user"},
+        {"name": "⚙️  Profile",   "url": "admin:accounts_customuser_changelist", "icon": "fas fa-user"},
     ],
 
     # ── Sidebar Icons (Font Awesome 5) ────────────────────────────────

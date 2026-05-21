@@ -11,8 +11,14 @@ class SendOTPSerializer(serializers.Serializer):
     identifier = serializers.CharField(max_length=150)
 
     def validate_identifier(self, value):
-        if User.objects.filter(email=value).exists() or User.objects.filter(phone=value).exists():
-            raise serializers.ValidationError("An account with this email/phone already exists.")
+        val = value.strip()
+        if "@" in val:
+            val = val.lower()
+            if User.objects.filter(email__iexact=val).exists():
+                raise serializers.ValidationError("An account with this email already exists.")
+        else:
+            if User.objects.filter(phone__exact=val).exists():
+                raise serializers.ValidationError("An account with this phone number already exists.")
         return value
 
 class VerifyOTPSerializer(serializers.Serializer):
@@ -46,8 +52,22 @@ class RegisterSerializer(serializers.ModelSerializer):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "Passwords do not match."})
             
-        # Optional: ensure either email or phone is provided and has a verified OTP
-        identifier = attrs.get('email') or attrs.get('phone')
+        email = attrs.get('email')
+        if email:
+            email = email.strip().lower()
+            attrs['email'] = email
+            if User.objects.filter(email__iexact=email).exists():
+                raise serializers.ValidationError({"email": "This email is already registered."})
+
+        phone = attrs.get('phone')
+        if phone:
+            phone = phone.strip()
+            attrs['phone'] = phone
+            if User.objects.filter(phone__exact=phone).exists():
+                raise serializers.ValidationError({"phone": "This phone number is already registered."})
+
+        # Ensure either email or phone is provided and has a verified OTP
+        identifier = email or phone
         if not identifier:
             raise serializers.ValidationError({"identifier": "Email or phone is required."})
             
@@ -66,6 +86,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
+        if 'email' in validated_data and validated_data['email']:
+            validated_data['email'] = validated_data['email'].strip().lower()
         user = User.objects.create_user(**validated_data)
         
         # Cleanup the used OTP
