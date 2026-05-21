@@ -154,83 +154,11 @@ class GoogleLoginView(APIView):
 
 
 class TestEmailView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
-    def get(self, request):
-        import os
-        from django.core.mail import send_mail
-        import traceback
-
-        log_path = os.path.join(settings.BASE_DIR, 'debug_email.log')
-
-        if request.GET.get('view_log') == 'true':
-            if os.path.exists(log_path):
-                try:
-                    with open(log_path, 'r') as f:
-                        content = f.read()
-                    return Response({"log": content})
-                except Exception as ex:
-                    return Response({"error": f"Failed to read log: {str(ex)}"})
-            return Response({"error": "No log file found"}, status=status.HTTP_404_NOT_FOUND)
-
-        send_test = request.GET.get('send') == 'true'
-        to_email = request.GET.get('to')
-
-        res_data = {
-            "EMAIL_HOST_USER": getattr(settings, 'EMAIL_HOST_USER', None),
-            "EMAIL_HOST_PASSWORD_SET": bool(getattr(settings, 'EMAIL_HOST_PASSWORD', None)),
-            "EMAIL_HOST_PASSWORD_LEN": len(settings.EMAIL_HOST_PASSWORD) if getattr(settings, 'EMAIL_HOST_PASSWORD', None) else 0,
-            "RAZORPAY_KEY_ID": getattr(settings, 'RAZORPAY_KEY_ID', None),
-            "RAZORPAY_KEY_SECRET_SET": bool(getattr(settings, 'RAZORPAY_KEY_SECRET', None)),
-        }
-
-        if send_test:
-            if not to_email:
-                res_data["send_status"] = "failed"
-                res_data["error"] = "Provide 'to' query parameter"
-                return Response(res_data)
-            try:
-                with open(log_path, 'w') as f:
-                    f.write("Starting send_mail test...\n")
-                
-                send_mail(
-                    'Sync GET Test Email',
-                    'Testing Gmail SMTP configuration directly in GET view.',
-                    settings.EMAIL_HOST_USER,
-                    [to_email],
-                    fail_silently=False,
-                )
-                
-                with open(log_path, 'a') as f:
-                    f.write("send_mail finished successfully!\n")
-                res_data["send_status"] = "success"
-                res_data["message"] = f"Email sent successfully to {to_email}"
-            except BaseException as e:
-                tb = traceback.format_exc()
-                try:
-                    with open(log_path, 'a') as f:
-                        f.write(f"Caught exception: {str(e)}\nTraceback:\n{tb}\n")
-                except Exception:
-                    pass
-                res_data["send_status"] = "failed"
-                res_data["error"] = str(e)
-                res_data["traceback"] = tb
-        
-        return Response(res_data)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
         user = request.user
-        if not user or user.is_anonymous:
-            # Fallback for AllowAny testing
-            email = request.data.get('email')
-            if not email:
-                return Response({"error": "For anonymous test, please provide email in body"}, status=status.HTTP_400_BAD_REQUEST)
-            username = "Test Guest"
-        else:
-            email = user.email
-            username = user.username
-
-        if not email:
+        if not user.email:
             return Response({"error": "Your user account does not have an email address set."}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
@@ -241,14 +169,14 @@ class TestEmailView(APIView):
                 
             send_mail(
                 'Test Email from MSR Rayalasema Ruchulu',
-                f'Hello {username},\n\nIf you are reading this, your SMTP settings are working perfectly on the server!',
+                f'Hello {user.username},\n\nIf you are reading this, your SMTP settings are working perfectly on the server!',
                 settings.EMAIL_HOST_USER,
-                [email],
+                [user.email],
                 fail_silently=False,
             )
             return Response({
                 "status": "success",
-                "message": f"Test email sent successfully to {email}",
+                "message": f"Test email sent successfully to {user.email}",
                 "smtp_user": settings.EMAIL_HOST_USER
             })
         except Exception as e:
