@@ -161,6 +161,18 @@ class TestEmailView(APIView):
         from django.core.mail import send_mail
         import traceback
 
+        log_path = os.path.join(settings.BASE_DIR, 'debug_email.log')
+
+        if request.GET.get('view_log') == 'true':
+            if os.path.exists(log_path):
+                try:
+                    with open(log_path, 'r') as f:
+                        content = f.read()
+                    return Response({"log": content})
+                except Exception as ex:
+                    return Response({"error": f"Failed to read log: {str(ex)}"})
+            return Response({"error": "No log file found"}, status=status.HTTP_404_NOT_FOUND)
+
         send_test = request.GET.get('send') == 'true'
         to_email = request.GET.get('to')
 
@@ -178,6 +190,9 @@ class TestEmailView(APIView):
                 res_data["error"] = "Provide 'to' query parameter"
                 return Response(res_data)
             try:
+                with open(log_path, 'w') as f:
+                    f.write("Starting send_mail test...\n")
+                
                 send_mail(
                     'Sync GET Test Email',
                     'Testing Gmail SMTP configuration directly in GET view.',
@@ -185,12 +200,21 @@ class TestEmailView(APIView):
                     [to_email],
                     fail_silently=False,
                 )
+                
+                with open(log_path, 'a') as f:
+                    f.write("send_mail finished successfully!\n")
                 res_data["send_status"] = "success"
                 res_data["message"] = f"Email sent successfully to {to_email}"
-            except Exception as e:
+            except BaseException as e:
+                tb = traceback.format_exc()
+                try:
+                    with open(log_path, 'a') as f:
+                        f.write(f"Caught exception: {str(e)}\nTraceback:\n{tb}\n")
+                except Exception:
+                    pass
                 res_data["send_status"] = "failed"
                 res_data["error"] = str(e)
-                res_data["traceback"] = traceback.format_exc()
+                res_data["traceback"] = tb
         
         return Response(res_data)
 
