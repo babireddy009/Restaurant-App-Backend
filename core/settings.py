@@ -284,3 +284,6 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 # Google OAuth
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
+# Brevo HTTP Email API Key (Free tier SMTP bypass)
+BREVO_API_KEY = os.getenv('BREVO_API_KEY')
+

@@ -162,6 +162,20 @@ class TestEmailView(APIView):
             return Response({"error": "Your user account does not have an email address set."}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
+            api_key = getattr(settings, 'BREVO_API_KEY', None)
+            if api_key:
+                from core.email_utils import send_mail_via_brevo
+                send_mail_via_brevo(
+                    'Test Email from MSR Rayalasema Ruchulu',
+                    f'Hello {user.username},\n\nIf you are reading this, your Brevo HTTP API email settings are working perfectly on the server!',
+                    [user.email]
+                )
+                return Response({
+                    "status": "success",
+                    "message": f"Test email sent successfully via Brevo HTTP API to {user.email}",
+                    "method": "Brevo API"
+                })
+
             if not getattr(settings, 'EMAIL_HOST_USER', None):
                 return Response({
                     "error": "EMAIL_HOST_USER environment variable is not set on the server."
@@ -176,8 +190,8 @@ class TestEmailView(APIView):
             )
             return Response({
                 "status": "success",
-                "message": f"Test email sent successfully to {user.email}",
-                "smtp_user": settings.EMAIL_HOST_USER
+                "message": f"Test email sent successfully via SMTP to {user.email}",
+                "method": "SMTP"
             })
         except Exception as e:
             import traceback
