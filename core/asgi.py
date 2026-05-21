@@ -1,8 +1,8 @@
 import os
-from django.core.asgi import get_asgi_application
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-django_asgi_app = get_asgi_application()
+django.setup()
 
 # Safe, atomic auto-startup hooks for ASGI environment
 try:
@@ -41,6 +41,9 @@ try:
         print("ASGI Startup tasks already running or executed in another process.")
 except Exception as e:
     print(f"ASGI Auto-startup error: {e}")
+
+from django.core.asgi import get_asgi_application
+django_asgi_app = get_asgi_application()
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack

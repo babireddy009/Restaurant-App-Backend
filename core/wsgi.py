@@ -1,9 +1,8 @@
 import os
-from django.core.wsgi import get_wsgi_application
+import django
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
-
-application = get_wsgi_application()
+django.setup()
 
 # Safe, atomic auto-startup hooks (migrations, collectstatic, seed data)
 try:
@@ -49,3 +48,6 @@ try:
 
 except Exception as e:
     print(f"Auto-startup error: {e}")
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
