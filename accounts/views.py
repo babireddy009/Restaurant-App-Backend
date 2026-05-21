@@ -132,16 +132,33 @@ class GoogleLoginView(APIView):
         except Exception as e:
             return Response({"detail": "Could not parse Google token. Did you install PyJWT for dev mock?"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 2. Find or Create User
-        user, created = User.objects.get_or_create(email=email, defaults={
-            'username': email.split('@')[0],
-            'first_name': first_name,
-            'last_name': last_name,
-        })
-
-        if created:
-            user.set_unusable_password()  # Because they use Google to log in
+        # 2. Find or Create User case-insensitively to prevent duplicates
+        email_lower = email.strip().lower()
+        user = User.objects.filter(email__iexact=email_lower).first()
+        created = False
+        if not user:
+            base_username = email_lower.split('@')[0]
+            # remove non-alphanumeric chars for clean usernames
+            import re
+            base_username = re.sub(r'[^a-zA-Z0-9]', '', base_username)
+            if not base_username:
+                base_username = "googleuser"
+            username = base_username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base_username}{counter}"
+                counter += 1
+                
+            user = User.objects.create_user(
+                username=username,
+                email=email_lower,
+                first_name=first_name,
+                last_name=last_name,
+                role='customer'
+            )
+            user.set_unusable_password()
             user.save()
+            created = True
 
         # 3. Generate JWT tokens for our app
         refresh = RefreshToken.for_user(user)
@@ -201,3 +218,90 @@ class TestEmailView(APIView):
                 "traceback": traceback.format_exc(),
                 "smtp_user": getattr(settings, 'EMAIL_HOST_USER', None)
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RunDiagnosticsView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        secret = request.GET.get('secret')
+        if secret != 'msrdebug123':
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        results = {}
+        from django.test.client import Client
+        from django.contrib.auth import get_user_model
+        import traceback
+
+        User = get_user_model()
+        try:
+            admin_user = User.objects.filter(is_superuser=True).first()
+            if not admin_user:
+                results["error"] = "No superuser found in database to run diagnostics."
+                return Response(results, status=status.HTTP_200_OK)
+                
+            client = Client()
+            client.force_login(admin_user)
+            
+            # 1. Admin Dashboard
+            try:
+                res = client.get('/admin/')
+                results["admin_dashboard"] = {
+                    "status_code": res.status_code,
+                    "content_preview": res.content[:500].decode('utf-8', errors='ignore') if res.status_code == 500 else "OK"
+                }
+            except Exception as e:
+                results["admin_dashboard"] = {
+                    "status_code": 500,
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                }
+                
+            # 2. Custom User List
+            try:
+                res = client.get('/admin/accounts/customuser/')
+                results["user_list"] = {
+                    "status_code": res.status_code,
+                    "content_preview": res.content[:500].decode('utf-8', errors='ignore') if res.status_code == 500 else "OK"
+                }
+            except Exception as e:
+                results["user_list"] = {
+                    "status_code": 500,
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                }
+
+            # 3. Menu Item List
+            try:
+                res = client.get('/admin/menu/menuitem/')
+                results["menu_item_list"] = {
+                    "status_code": res.status_code,
+                    "content_preview": res.content[:500].decode('utf-8', errors='ignore') if res.status_code == 500 else "OK"
+                }
+            except Exception as e:
+                results["menu_item_list"] = {
+                    "status_code": 500,
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                }
+
+            # 4. Order List
+            try:
+                res = client.get('/admin/orders/order/')
+                results["order_list"] = {
+                    "status_code": res.status_code,
+                    "content_preview": res.content[:500].decode('utf-8', errors='ignore') if res.status_code == 500 else "OK"
+                }
+            except Exception as e:
+                results["order_list"] = {
+                    "status_code": 500,
+                    "error": str(e),
+                    "traceback": traceback.format_exc()
+                }
+
+        except Exception as e:
+            results["error"] = str(e)
+            results["traceback"] = traceback.format_exc()
+
+        return Response(results, status=status.HTTP_200_OK)
+

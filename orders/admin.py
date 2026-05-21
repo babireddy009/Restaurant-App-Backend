@@ -32,6 +32,7 @@ class OrderAdmin(admin.ModelAdmin):
     date_hierarchy      = 'created_at'
     save_on_top         = True
     list_display_links  = ('order_number', 'customer_name')
+    actions             = ['mark_as_confirmed', 'mark_as_preparing', 'mark_as_ready', 'mark_as_delivered', 'mark_as_cancelled']
 
     fieldsets = (
         ('📦 Order Details', {
@@ -105,6 +106,26 @@ class OrderAdmin(admin.ModelAdmin):
             'border-radius:12px;font-size:0.82rem;font-weight:700;">⏳ Unpaid</span>'
         )
     payment_badge.short_description = '💳 Payment'
+
+    def mark_as_confirmed(self, request, queryset):
+        queryset.update(status='confirmed')
+    mark_as_confirmed.short_description = "✅ Mark selected orders as Confirmed"
+
+    def mark_as_preparing(self, request, queryset):
+        queryset.update(status='preparing')
+    mark_as_preparing.short_description = "👨‍🍳 Mark selected orders as Preparing"
+
+    def mark_as_ready(self, request, queryset):
+        queryset.update(status='ready')
+    mark_as_ready.short_description = "🔔 Mark selected orders as Ready for Pickup"
+
+    def mark_as_delivered(self, request, queryset):
+        queryset.update(status='delivered', is_paid=True)
+    mark_as_delivered.short_description = "🎉 Mark selected orders as Delivered & Paid"
+
+    def mark_as_cancelled(self, request, queryset):
+        queryset.update(status='cancelled')
+    mark_as_cancelled.short_description = "❌ Mark selected orders as Cancelled"
 
 
 @admin.register(OrderItem)

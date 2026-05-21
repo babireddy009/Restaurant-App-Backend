@@ -35,3 +35,31 @@ class JWTAuthMiddleware:
                 pass
         
         return await self.inner(scope, receive, send)
+
+
+import os
+import traceback
+
+class ExceptionLoggerMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_exception(self, request, exception):
+        tb_str = traceback.format_exc()
+        log_file = os.path.join(settings.BASE_DIR, 'django_errors.log')
+        try:
+            with open(log_file, 'a', encoding='utf-8') as f:
+                f.write("=== ERROR ===\n")
+                f.write(f"Path: {request.path}\n")
+                f.write(f"Method: {request.method}\n")
+                f.write(f"User: {request.user}\n")
+                f.write(f"Exception: {str(exception)}\n")
+                f.write(f"Traceback:\n{tb_str}\n")
+                f.write(f"=============\n\n")
+        except Exception as e:
+            print("Error writing exception log:", e)
+        return None
+

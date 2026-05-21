@@ -13,6 +13,66 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+def cleanup_duplicate_emails():
+    from django.db.models import Count
+    from django.db.models.functions import Lower
+    from django.db import transaction
+    from orders.models import Order, OrderReview
+
+    # Find lowercase emails that are shared by multiple users
+    duplicates = (
+        User.objects.annotate(email_lower=Lower('email'))
+        .values('email_lower')
+        .annotate(email_count=Count('id'))
+        .filter(email_count__gt=1, email_lower__isnull=False)
+        .exclude(email_lower='')
+    )
+
+    if not duplicates:
+        print("No duplicate email accounts found to clean up.")
+        return
+
+    print(f"Found {len(duplicates)} emails with duplicate accounts. Starting cleanup...")
+
+    for dup in duplicates:
+        email_lower = dup['email_lower']
+        
+        # Get all users with this email, ordered by id ascending (keep the oldest account)
+        users = list(User.objects.filter(email__iexact=email_lower).order_by('id'))
+        kept_user = users[0]
+        duplicate_users = users[1:]
+
+        print(f"Keeping user: '{kept_user.username}' (ID: {kept_user.id}, Email: {kept_user.email})")
+
+        with transaction.atomic():
+            for dup_user in duplicate_users:
+                print(f"  Processing duplicate user: '{dup_user.username}' (ID: {dup_user.id}, Email: {dup_user.email})")
+                
+                # Re-point orders where they were the customer
+                orders_count = Order.objects.filter(user=dup_user).update(user=kept_user)
+                if orders_count:
+                    print(f"    Moved {orders_count} orders to kept user")
+
+                # Re-point orders where they were the driver
+                deliveries_count = Order.objects.filter(driver=dup_user).update(driver=kept_user)
+                if deliveries_count:
+                    print(f"    Moved {deliveries_count} deliveries to kept user")
+
+                # Re-point reviews
+                reviews_count = OrderReview.objects.filter(user=dup_user).update(user=kept_user)
+                if reviews_count:
+                    print(f"    Moved {reviews_count} reviews to kept user")
+
+                # Finally, delete the duplicate user
+                dup_id = dup_user.id
+                dup_user.delete()
+                print(f"    Deleted duplicate user ID: {dup_id}")
+
+    print("Cleanup of duplicate emails completed successfully.")
+
+# Run duplicate cleanup on start
+cleanup_duplicate_emails()
+
 # Create sample categories
 categories_data = [
     {'name': 'Starters', 'description': 'Delicious appetizers to start your meal', 'sort_order': 1},
