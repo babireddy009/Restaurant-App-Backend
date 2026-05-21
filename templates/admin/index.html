@@ -1,0 +1,317 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Dashboard' %} {% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item">{% trans 'Dashboard' %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+    {% get_side_menu using="app_list" as dashboard_list %}
+    {% if dashboard_list %}
+        {% widthratio dashboard_list|length 2 1 as middle %}
+    {% endif %}
+
+    <!-- 🌟 Custom Premium Dashboard Cards 🌟 -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <!-- Today's Sales -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success shadow-sm" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
+                    <div class="inner" style="padding: 20px;">
+                        <h3 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 5px;">₹{{ today_sales|floatformat:0 }}</h3>
+                        <p style="font-weight: 500; font-size: 1rem; opacity: 0.9;">Today's Sales</p>
+                    </div>
+                    <div class="icon" style="top: 15px; right: 15px;">
+                        <i class="fas fa-rupee-sign" style="font-size: 4rem; opacity: 0.15;"></i>
+                    </div>
+                    <a href="/admin/orders/order/?created_at__gte={{ today_date }}" class="small-box-footer" style="background: rgba(0,0,0,0.1); padding: 8px; font-weight: 600;">
+                        View Today's Orders <i class="fas fa-arrow-circle-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Active Orders -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning shadow-sm" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
+                    <div class="inner" style="padding: 20px; color: #1f2d3d;">
+                        <h3 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 5px;">{{ active_orders }}</h3>
+                        <p style="font-weight: 500; font-size: 1rem; opacity: 0.9;">Active Orders</p>
+                    </div>
+                    <div class="icon" style="top: 15px; right: 15px;">
+                        <i class="fas fa-shopping-bag" style="font-size: 4rem; opacity: 0.15; color: #1f2d3d;"></i>
+                    </div>
+                    <a href="/admin/orders/order/?status__in=pending,confirmed,preparing,ready,out_for_delivery" class="small-box-footer" style="background: rgba(0,0,0,0.06); padding: 8px; font-weight: 600; color: #1f2d3d !important;">
+                        Manage Active Orders <i class="fas fa-arrow-circle-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Total Customers -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info shadow-sm" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s;">
+                    <div class="inner" style="padding: 20px;">
+                        <h3 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 5px;">{{ total_customers }}</h3>
+                        <p style="font-weight: 500; font-size: 1rem; opacity: 0.9;">Total Customers</p>
+                    </div>
+                    <div class="icon" style="top: 15px; right: 15px;">
+                        <i class="fas fa-users" style="font-size: 4rem; opacity: 0.15;"></i>
+                    </div>
+                    <a href="/admin/accounts/customuser/?role__exact=customer" class="small-box-footer" style="background: rgba(0,0,0,0.1); padding: 8px; font-weight: 600;">
+                        View Customers <i class="fas fa-arrow-circle-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Total Sales (All Time) -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-indigo shadow-sm" style="border-radius: 12px; overflow: hidden; transition: transform 0.2s; background-color: #6610f2 !important;">
+                    <div class="inner" style="padding: 20px;">
+                        <h3 style="font-weight: 800; font-size: 2.2rem; margin-bottom: 5px;">₹{{ total_sales|floatformat:0 }}</h3>
+                        <p style="font-weight: 500; font-size: 1rem; opacity: 0.9;">All-Time Revenue</p>
+                    </div>
+                    <div class="icon" style="top: 15px; right: 15px;">
+                        <i class="fas fa-chart-line" style="font-size: 4rem; opacity: 0.15;"></i>
+                    </div>
+                    <a href="/admin/orders/order/" class="small-box-footer" style="background: rgba(0,0,0,0.15); padding: 8px; font-weight: 600;">
+                        View All Orders <i class="fas fa-arrow-circle-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📊 Active Orders Console & Best Sellers 📊 -->
+        <div class="row mt-3">
+            <div class="col-lg-8 col-12">
+                <div class="card card-outline card-orange shadow-sm" style="border-radius: 10px;">
+                    <div class="card-header border-0" style="padding: 15px 20px; background-color: transparent;">
+                        <h3 class="card-title" style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-shopping-cart text-orange"></i> Recent Orders Console
+                        </h3>
+                        <div class="card-tools">
+                            <a href="/admin/orders/order/" class="btn btn-sm btn-outline-orange" style="border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+                                <i class="fas fa-list mr-1"></i> View All Orders
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body table-responsive p-0" style="max-height: 380px; overflow-y: auto;">
+                        <table class="table table-striped table-valign-middle" style="margin-bottom: 0;">
+                            <thead>
+                                <tr style="background-color: rgba(0,0,0,0.03); font-size: 0.85rem;">
+                                    <th style="padding: 12px 15px;">Order ID</th>
+                                    <th>Customer Info</th>
+                                    <th>Total Amount</th>
+                                    <th>Current Status</th>
+                                    <th>Payment</th>
+                                    <th style="padding: 12px 15px;">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders_list %}
+                                <tr style="font-size: 0.9rem;">
+                                    <td style="padding: 12px 15px;">
+                                        <a href="/admin/orders/order/{{ order.id }}/change/" style="font-weight: 700; color: #fd7e14;">
+                                            #{{ order.id }}00{{ order.id }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #fff;">{{ order.user.first_name }} {{ order.user.last_name }}</strong>
+                                        <small class="text-muted d-block" style="font-size: 0.78rem;"><i class="fas fa-phone-alt mr-1"></i>{{ order.user.phone|default:"—" }}</small>
+                                    </td>
+                                    <td>
+                                        <strong style="color: #fd7e14; font-size: 0.95rem;">₹{{ order.total_amount|floatformat:0 }}</strong>
+                                    </td>
+                                    <td>
+                                        {% if order.status == 'pending' %}
+                                            <span class="badge badge-warning" style="padding: 5px 10px; border-radius: 10px; font-weight: 600;">⏳ Pending</span>
+                                        {% elif order.status == 'confirmed' %}
+                                            <span class="badge badge-primary" style="padding: 5px 10px; border-radius: 10px; font-weight: 600; background-color: #007bff !important;">✅ Confirmed</span>
+                                        {% elif order.status == 'preparing' %}
+                                            <span class="badge badge-info" style="padding: 5px 10px; border-radius: 10px; font-weight: 600; background-color: #17a2b8 !important;">👨‍🍳 Preparing</span>
+                                        {% elif order.status == 'ready' %}
+                                            <span class="badge badge-info" style="padding: 5px 10px; border-radius: 10px; font-weight: 600; background-color: #3f51b5 !important;">🔔 Ready for Pick</span>
+                                        {% elif order.status == 'out_for_delivery' %}
+                                            <span class="badge badge-secondary" style="padding: 5px 10px; border-radius: 10px; font-weight: 600;">🚴 Out for Delivery</span>
+                                        {% elif order.status == 'delivered' %}
+                                            <span class="badge badge-success" style="padding: 5px 10px; border-radius: 10px; font-weight: 600; background-color: #28a745 !important;">🎉 Delivered</span>
+                                        {% else %}
+                                            <span class="badge badge-danger" style="padding: 5px 10px; border-radius: 10px; font-weight: 600;">❌ Cancelled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.is_paid %}
+                                            <span class="badge badge-success" style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background-color: #2dcc70 !important;">Paid</span>
+                                        {% else %}
+                                            <span class="badge badge-warning" style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background-color: #f39c12 !important; color: #fff !important;">Unpaid</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="padding: 12px 15px; color: #adb5bd;">
+                                        <small>{{ order.created_at|timesince }} ago</small>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted" style="padding: 30px;">
+                                        <i class="fas fa-inbox mb-2" style="font-size: 2rem; display: block;"></i> No recent orders recorded.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-12">
+                <!-- Popular Dishes (Best Sellers) -->
+                <div class="card card-outline card-orange shadow-sm" style="border-radius: 10px;">
+                    <div class="card-header" style="padding: 15px 20px; background-color: transparent;">
+                        <h3 class="card-title" style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-fire text-danger"></i> Popular Dishes
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="products-list product-list-in-card pl-2 pr-2" style="margin-bottom: 0;">
+                            {% for item in best_sellers %}
+                            <li class="item" style="padding: 15px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; background-color: rgba(253, 126, 20, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fd7e14;">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                    <div>
+                                        <span class="product-title" style="font-weight: 700; color: #fff; font-size: 0.92rem; display: block;">
+                                            {{ item.item_name }}
+                                        </span>
+                                        <span class="text-muted" style="font-size: 0.78rem;">Customer Favorite</span>
+                                    </div>
+                                </div>
+                                <span class="badge badge-warning" style="font-size: 0.85rem; padding: 5px 10px; border-radius: 12px; background-color: #fd7e14; color: #fff; font-weight: 700;">
+                                    {{ item.total_qty }} Sold
+                                </span>
+                            </li>
+                            {% empty %}
+                            <li class="item text-center text-muted p-4">
+                                <i class="fas fa-chart-bar mb-2" style="font-size: 2rem; display: block;"></i> No sales details yet.
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📋 Default Django Admin App Navigation 📋 -->
+    <div class="col-12 mt-4">
+        <hr style="border-top: 1px solid rgba(255,255,255,0.15);" />
+        <h4 class="mb-3 text-muted" style="font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-cogs"></i> Database Administration & System Directories
+        </h4>
+    </div>
+
+    <div class="col-lg-9 col-12">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                {% for app in dashboard_list %}
+                    <div class="card card-outline card-secondary shadow-sm" style="border-radius: 8px; margin-bottom: 20px;">
+                        <div class="card-header" style="background-color: rgba(255,255,255,0.02); padding: 12px 18px;">
+                            <h5 class="m-0" style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-chevron-circle-right text-muted"></i> {{ app.name }}
+                            </h5>
+                        </div>
+                        <div class="card-body" style="padding: 10px 18px;">
+                            <table class="table table-sm" style="margin-bottom: 0;">
+                                <tbody>
+                                {% for model in app.models %}
+                                    <tr>
+                                        <td style="vertical-align: middle; border-top: none; padding: 8px 0;">
+                                            {% if model.url %}
+                                                <a href="{{ model.url }}" style="font-weight: 600; color: #fff; font-size: 0.9rem;">{{ model.name }}</a>
+                                            {% else %}
+                                                <span style="font-weight: 600; font-size: 0.9rem;">{{ model.name }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="border-top: none; padding: 8px 0; text-align: right;">
+                                            <div class="btn-group">
+                                                {% if model.add_url %}
+                                                    <a href="{{ model.add_url }}" class="btn btn-xs btn-success" style="border-radius: 4px; font-weight: 600; font-size: 0.72rem; padding: 2px 8px; margin-right: 4px;">
+                                                        <i class="fas fa-plus mr-1"></i> {% trans 'Add' %}
+                                                    </a>
+                                                {% endif %}
+                                                {% if model.url %}
+                                                    <a href="{{ model.url }}" class="btn btn-xs btn-info" style="border-radius: 4px; font-weight: 600; font-size: 0.72rem; padding: 2px 8px;">
+                                                        {% if model.view_only %}<i class="fas fa-eye mr-1"></i> {% trans 'View' %}{% else %}<i class="fas fa-pencil-alt mr-1"></i> {% trans 'Change' %}{% endif %}
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if forloop.counter == middle|add:"0" %}
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                    {% endif %}
+
+                {% endfor %}
+                </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Recent Actions Timeline -->
+    <div class="col-lg-3 col-12">
+        <div id="content-related">
+            <div class="card card-outline card-secondary shadow-sm" style="border-radius: 8px; background: rgba(0,0,0,0.15);">
+                <div class="card-header" style="padding: 15px 18px; background-color: transparent;">
+                    <h5 class="m-0" style="font-weight: 700; font-size: 0.98rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-history text-muted"></i> {% trans 'Recent actions' %}
+                    </h5>
+                </div>
+                <div class="card-body" style="padding: 12px 18px;">
+                    {% load log %}
+                    {% get_admin_log 8 as admin_log for_user user %}
+                    {% if not admin_log %}
+                        <p class="text-muted" style="font-size: 0.85rem;">{% trans 'None available' %}</p>
+                    {% else %}
+                        <div class="timeline" style="margin: 0; padding: 0;">
+                            {% for entry in admin_log %}
+                                <div style="margin-right: 0; margin-bottom: 12px;">
+                                    {% if entry.is_change %}
+                                        <i class="fas fa-edit bg-gray text-xs" style="width: 20px; height: 20px; font-size: 10px; line-height: 20px; left: 10px;"></i>
+                                    {% elif entry.is_deletion %}
+                                        <i class="fas fa-trash bg-danger text-xs" style="width: 20px; height: 20px; font-size: 10px; line-height: 20px; left: 10px;"></i>
+                                    {% elif entry.is_addition %}
+                                        <i class="fas fa-plus-circle bg-success text-xs" style="width: 20px; height: 20px; font-size: 10px; line-height: 20px; left: 10px;"></i>
+                                    {% endif %}
+
+                                    <div class="timeline-item" style="margin-left: 40px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); color: #fff; padding: 6px 10px; border-radius: 6px;">
+                                        <span class="time" style="color: #adb5bd; font-size: 0.72rem; padding: 2px 0;"><i class="fas fa-clock mr-1"></i>{{ entry.action_time|timesince }} ago</span>
+                                        <h3 class="timeline-header no-border" style="font-size: 0.82rem; font-weight: 600; padding: 0; margin-bottom: 2px; color: #fff;">
+                                            {% if entry.is_deletion or not entry.get_admin_url %}
+                                                {{ entry.object_repr }}
+                                            {% else %}
+                                                <a href="{{ entry.get_admin_url }}" style="color: #fd7e14; font-weight: 700;">{{ entry.object_repr }}</a>
+                                            {% endif %}
+                                        </h3>
+                                        <small class="text-muted d-block" style="font-size: 0.72rem;">{{ entry.model|capfirst }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
