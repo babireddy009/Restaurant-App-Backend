@@ -228,7 +228,15 @@ class RunDiagnosticsView(APIView):
         if secret != 'msrdebug123':
             return Response({"detail": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        results = {}
+        import sys
+        import django
+        import django.template.context
+        
+        results = {
+            "python_version": sys.version,
+            "django_version": django.get_version(),
+            "patch_applied": hasattr(django.template.context.BaseContext.__copy__, "__code__") and "patched_copy" in django.template.context.BaseContext.__copy__.__code__.co_name
+        }
         from django.test.client import Client
         from django.contrib.auth import get_user_model
         import traceback
