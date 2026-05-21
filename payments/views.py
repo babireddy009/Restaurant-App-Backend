@@ -245,3 +245,44 @@ class TestPaymentSuccessView(APIView):
             'order_id':         order.id,
             'fake_payment_id':  fake_payment_id,
         })
+
+
+class RazorpayMethodsView(APIView):
+    permission_classes = (permissions.AllowAny,)
+
+    def get(self, request):
+        import urllib.request
+        import json
+        import base64
+        import ssl
+
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        key_id = settings.RAZORPAY_KEY_ID
+        key_secret = settings.RAZORPAY_KEY_SECRET
+
+        url = "https://api.razorpay.com/v1/methods"
+        auth_str = f"{key_id}:{key_secret}"
+        auth_bytes = auth_str.encode('utf-8')
+        auth_b64 = base64.b64encode(auth_bytes).decode('utf-8')
+
+        headers = {
+            "Authorization": f"Basic {auth_b64}"
+        }
+
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, context=ctx) as res:
+                data = json.loads(res.read().decode('utf-8'))
+                return Response({
+                    "key_id": key_id,
+                    "methods": data
+                })
+        except Exception as e:
+            return Response({
+                "key_id": key_id,
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
