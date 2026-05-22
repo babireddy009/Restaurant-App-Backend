@@ -52,7 +52,7 @@ class MenuItemAdmin(admin.ModelAdmin):
             'fields': (
                 ('is_vegetarian', 'is_available'),
                 ('is_featured', 'is_bestseller'),
-                ('spice_level', 'preparation_time', 'calories'),
+                ('spice_level', 'preparation_time'),
             )
         }),
         ('⭐ Ratings', {
