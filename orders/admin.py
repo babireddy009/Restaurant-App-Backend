@@ -1,13 +1,14 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Order, OrderItem, ChatMessage
+from .models import Order, OrderItem, ChatMessage, OrderReview
 
 
 class OrderItemInline(admin.TabularInline):
     model           = OrderItem
     extra           = 0
-    can_delete      = False
-    readonly_fields = ('item_name', 'item_price', 'quantity', 'subtotal_display')
+    can_delete      = True
+    readonly_fields = ('subtotal_display',)
+    fields          = ('item_name', 'item_price', 'quantity', 'subtotal_display')
     verbose_name    = 'Ordered Item'
     verbose_name_plural = '🛒 Ordered Items'
 
@@ -25,7 +26,7 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields       = ('user__username', 'user__email', 'user__phone',
                            'delivery_address', 'id')
     ordering            = ('-created_at',)
-    readonly_fields     = ('user', 'total_amount', 'created_at', 'updated_at')
+    readonly_fields     = ('created_at', 'updated_at')
     inlines             = [OrderItemInline]
     list_editable       = ('status',)
     list_per_page       = 25
@@ -36,10 +37,10 @@ class OrderAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('📦 Order Details', {
-            'fields': ('user', 'status', 'is_paid', 'total_amount')
+            'fields': ('user', 'status', 'is_paid', 'payment_method', 'total_amount')
         }),
         ('📍 Delivery Information', {
-            'fields': ('delivery_address', 'notes')
+            'fields': ('delivery_address', 'delivery_lat', 'delivery_lng', 'notes')
         }),
         ('🛵 Driver & Tracking', {
             'fields': ('driver', 'delivery_otp', 'driver_name', 'driver_phone', 'driver_lat', 'driver_lng'),
@@ -154,7 +155,7 @@ class ChatMessageAdmin(admin.ModelAdmin):
     list_display = ('order_link', 'sender', 'message_preview', 'timestamp')
     list_filter = ('sender', 'timestamp')
     search_fields = ('message', 'order__id')
-    readonly_fields = ('order', 'sender', 'message', 'timestamp')
+    readonly_fields = ('timestamp',)
     
     def order_link(self, obj):
         url = f'/admin/orders/order/{obj.order.id}/change/'
@@ -164,3 +165,32 @@ class ChatMessageAdmin(admin.ModelAdmin):
     def message_preview(self, obj):
         return obj.message[:50] + '...' if len(obj.message) > 50 else obj.message
     message_preview.short_description = 'Message'
+
+
+@admin.register(OrderReview)
+class OrderReviewAdmin(admin.ModelAdmin):
+    list_display = ('order_link', 'user', 'food_rating_stars', 'driver_rating_stars', 'comments_preview', 'created_at')
+    list_filter = ('food_rating', 'driver_rating', 'created_at')
+    search_fields = ('comments', 'order__id', 'user__username')
+    readonly_fields = ('created_at',)
+    list_per_page = 25
+
+    def order_link(self, obj):
+        url = f'/admin/orders/order/{obj.order.id}/change/'
+        return format_html('<a href="{}" style="font-weight:700;">#{}</a>', url, obj.order.id)
+    order_link.short_description = '📦 Order'
+
+    def food_rating_stars(self, obj):
+        return '⭐' * obj.food_rating
+    food_rating_stars.short_description = '🍽️ Food'
+
+    def driver_rating_stars(self, obj):
+        return '⭐' * obj.driver_rating
+    driver_rating_stars.short_description = '🛵 Driver'
+
+    def comments_preview(self, obj):
+        if obj.comments:
+            return obj.comments[:60] + '...' if len(obj.comments) > 60 else obj.comments
+        return '—'
+    comments_preview.short_description = 'Comments'
+

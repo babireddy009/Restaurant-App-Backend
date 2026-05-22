@@ -10,7 +10,7 @@ class PaymentAdmin(admin.ModelAdmin):
     list_filter     = ('status', 'currency', 'created_at')
     search_fields   = ('razorpay_order_id', 'razorpay_payment_id', 'order__id')
     readonly_fields = ('razorpay_order_id', 'razorpay_payment_id',
-                       'razorpay_signature', 'created_at', 'updated_at', 'order')
+                       'razorpay_signature', 'created_at', 'updated_at')
     ordering        = ('-created_at',)
     list_per_page   = 30
     date_hierarchy  = 'created_at'
