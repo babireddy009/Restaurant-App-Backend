@@ -9,7 +9,9 @@ from .models import Payment
 
 
 def get_razorpay_client():
-    return razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    key_id = (settings.RAZORPAY_KEY_ID or '').strip()
+    key_secret = (settings.RAZORPAY_KEY_SECRET or '').strip()
+    return razorpay.Client(auth=(key_id, key_secret))
 
 
 class CreatePaymentView(APIView):
@@ -80,7 +82,7 @@ class CreatePaymentView(APIView):
             'razorpay_order_id': rz_order['id'],
             'amount': amount_paise,
             'currency': 'INR',
-            'key': settings.RAZORPAY_KEY_ID,
+            'key': (settings.RAZORPAY_KEY_ID or '').strip(),
             'order_id': order.id,
         })
 
@@ -260,8 +262,8 @@ class RazorpayMethodsView(APIView):
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
-        key_id = settings.RAZORPAY_KEY_ID
-        key_secret = settings.RAZORPAY_KEY_SECRET
+        key_id = (settings.RAZORPAY_KEY_ID or '').strip()
+        key_secret = (settings.RAZORPAY_KEY_SECRET or '').strip()
 
         url = "https://api.razorpay.com/v1/methods"
         auth_str = f"{key_id}:{key_secret}"
