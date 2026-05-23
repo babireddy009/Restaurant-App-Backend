@@ -71,9 +71,14 @@ class CreateOrderSerializer(serializers.Serializer):
             total += subtotal
             order_items.append((menu_item, item_data['quantity']))
 
+        # Round tax to nearest integer to match Math.round(totalPrice * 0.05) on the frontend
+        from decimal import Decimal
+        tax = int(round(float(total) * 0.05))
+        total_with_tax = total + Decimal(str(tax))
+
         import random
         delivery_otp = str(random.randint(1000, 9999))
-        order = Order.objects.create(user=user, total_amount=total, delivery_otp=delivery_otp, **validated_data)
+        order = Order.objects.create(user=user, total_amount=total_with_tax, delivery_otp=delivery_otp, **validated_data)
 
         for menu_item, quantity in order_items:
             OrderItem.objects.create(
