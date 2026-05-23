@@ -29,6 +29,17 @@ class VerifyOTPSerializer(serializers.Serializer):
         identifier = attrs.get('identifier')
         otp_code = attrs.get('otp_code')
         
+        # Debug/Testing bypass for email verification block on Render/local
+        from django.conf import settings
+        if getattr(settings, 'DEBUG', False) and otp_code == '123456':
+            from django.utils import timezone
+            otp_obj, created = OTPVerification.objects.get_or_create(identifier=identifier)
+            otp_obj.otp_code = '123456'
+            otp_obj.expires_at = timezone.now() + timezone.timedelta(minutes=10)
+            otp_obj.is_verified = True
+            otp_obj.save()
+            return attrs
+            
         try:
             otp_obj = OTPVerification.objects.get(identifier=identifier, otp_code=otp_code)
         except OTPVerification.DoesNotExist:
