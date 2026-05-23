@@ -193,9 +193,32 @@ else:
     staff_user.save()
     print("Ensured staff user has staff permissions")
 
+# Create default driver user
+driver_user, created_driver = User.objects.get_or_create(
+    username='driver',
+    defaults={
+        'email': 'driver@msrruchulu.com',
+        'role': 'driver',
+        'is_staff': False,
+        'is_superuser': False,
+        'first_name': 'Driver',
+        'last_name': 'User',
+        'phone': '9988776655'
+    }
+)
+if created_driver:
+    driver_user.set_password('driver@123')
+    driver_user.save()
+    print("Created driver user: driver / driver@123")
+else:
+    driver_user.role = 'driver'
+    driver_user.save()
+    print("Ensured driver user has driver role")
+
 print("\n[OK] Seed data loaded successfully!")
 print("Categories:", Category.objects.count())
 print("Menu Items:", MenuItem.objects.count())
 print("\n[Default Credentials]")
-print("   Admin: username=admin, password=admin@123")
-print("   Staff: username=staff, password=staff@123")
+print("   Admin:  username=admin,  password=admin@123")
+print("   Staff:  username=staff,  password=staff@123")
+print("   Driver: username=driver, password=driver@123")
