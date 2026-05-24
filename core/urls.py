@@ -4,7 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 # ── Customize Django Admin branding ──────────────────────────────────────────
-admin.site.site_header  = 'MSR Rayalasema Ruchulu — Admin'
+admin.site.site_header  = 'MSR Rayalaseema Ruchulu — Admin'
 admin.site.site_title   = 'MSR Admin'
 admin.site.index_title  = 'Restaurant Management Dashboard'
 

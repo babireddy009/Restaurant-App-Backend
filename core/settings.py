@@ -169,10 +169,10 @@ RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
 JAZZMIN_SETTINGS = {
     # ── Branding ──────────────────────────────────────────────────────────
     "site_title":        "MSR Admin",
-    "site_header":       "MSR Rayalasema Ruchulu",
+    "site_header":       "MSR Rayalaseema Ruchulu",
     "site_brand":        "MSR Ruchulu",
-    "welcome_sign":      "Welcome to MSR Rayalasema Ruchulu Management",
-    "copyright":         "MSR Rayalasema Ruchulu © 2024",
+    "welcome_sign":      "Welcome to MSR Rayalaseema Ruchulu Management",
+    "copyright":         "MSR Rayalaseema Ruchulu © 2024",
     "site_icon":         None,
     "site_logo":         None,
 

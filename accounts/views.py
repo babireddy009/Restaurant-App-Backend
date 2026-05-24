@@ -34,7 +34,7 @@ class SendOTPView(APIView):
             from core.email_utils import send_mail_async
             send_mail_async(
                 'Your OTP Verification Code',
-                f'Welcome to MSR Rayalasema Ruchulu! Your secure OTP code is: {otp.otp_code}\n\nThis code will expire in 10 minutes.',
+                f'Welcome to MSR Rayalaseema Ruchulu! Your secure OTP code is: {otp.otp_code}\n\nThis code will expire in 10 minutes.',
                 [identifier],
                 fail_silently=False,
             )
@@ -183,7 +183,7 @@ class TestEmailView(APIView):
             if api_key:
                 from core.email_utils import send_mail_via_brevo
                 send_mail_via_brevo(
-                    'Test Email from MSR Rayalasema Ruchulu',
+                    'Test Email from MSR Rayalaseema Ruchulu',
                     f'Hello {user.username},\n\nIf you are reading this, your Brevo HTTP API email settings are working perfectly on the server!',
                     [user.email]
                 )
@@ -199,7 +199,7 @@ class TestEmailView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
                 
             send_mail(
-                'Test Email from MSR Rayalasema Ruchulu',
+                'Test Email from MSR Rayalaseema Ruchulu',
                 f'Hello {user.username},\n\nIf you are reading this, your SMTP settings are working perfectly on the server!',
                 settings.EMAIL_HOST_USER,
                 [user.email],

@@ -19,13 +19,13 @@ def _send_customer_email(order, subject, message):
 
 def send_order_confirmation_email(order):
     """Fired when pure COD is placed, or Online Payment clears."""
-    subject = f"Order #{order.id} Confirmed - MSR Rayalasema Ruchulu"
+    subject = f"Order #{order.id} Confirmed - MSR Rayalaseema Ruchulu"
     
     items_list = "\n".join([f"- {item.quantity}x {item.item_name} (₹{item.item_price})" for item in order.items.all()])
     
     body = (
         f"Hello {order.user.username},\n\n"
-        f"Thank you for ordering with MSR Rayalasema Ruchulu!\n"
+        f"Thank you for ordering with MSR Rayalaseema Ruchulu!\n"
         f"Your order #{order.id} has been fully confirmed.\n\n"
         f"ORDER SUMMARY:\n"
         f"{items_list}\n\n"
@@ -61,7 +61,7 @@ def send_order_status_update_email(order):
         f"An update regarding your recent order #{order.id}:\n\n"
         f"Your food {headline}\n"
         f"{flavor}\n\n"
-        f"Thank you,\nMSR Rayalasema Ruchulu Team"
+        f"Thank you,\nMSR Rayalaseema Ruchulu Team"
     )
 
     _send_customer_email(order, subject, body)
