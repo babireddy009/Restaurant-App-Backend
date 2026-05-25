@@ -100,7 +100,17 @@ class VerifyPaymentView(APIView):
         rz_payment_id = request.data.get('razorpay_payment_id')
         rz_signature  = request.data.get('razorpay_signature')
 
+        print(f"\n--- PAYMENT VERIFICATION ATTEMPT ---")
+        print(f"User: {request.user.username}")
+        print(f"Received Order ID: {rz_order_id}")
+        print(f"Received Payment ID: {rz_payment_id}")
+        print(f"Received Signature: {rz_signature}")
+        print(f"Using Key ID: {getattr(settings, 'RAZORPAY_KEY_ID', '')}")
+        secret = getattr(settings, 'RAZORPAY_KEY_SECRET', '') or ''
+        print(f"Using Secret Length: {len(secret.strip())}")
+
         if not all([rz_order_id, rz_payment_id, rz_signature]):
+            print("[VERIFY] Error: Missing payment credentials")
             return Response(
                 {'error': 'Missing payment credentials (order_id, payment_id, signature)'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -108,13 +118,15 @@ class VerifyPaymentView(APIView):
 
         try:
             payment = Payment.objects.get(razorpay_order_id=rz_order_id)
+            print(f"Found matching database Payment record. Amount: {payment.amount}")
         except Payment.DoesNotExist:
+            print(f"[VERIFY] Error: Payment record not found in database for order id: {rz_order_id}")
             return Response(
-                {'error': 'Payment record not found. Create payment first.'},
+                {'error': f'Payment record not found for Razorpay Order ID: {rz_order_id}.'},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Use Razorpay SDK's built-in HMAC-SHA256 verifier (recommended for v2)
+        # Use Razorpay SDK's built-in HMAC-SHA256 verifier
         try:
             client = get_razorpay_client()
             client.utility.verify_payment_signature({
@@ -124,11 +136,24 @@ class VerifyPaymentView(APIView):
             })
             # If no exception raised → signature is valid
             signature_valid = True
-        except razorpay.errors.SignatureVerificationError:
+            print("[VERIFY] Signature verified successfully by Razorpay SDK!")
+        except razorpay.errors.SignatureVerificationError as e:
+            print(f"[VERIFY] SignatureVerificationError raised: {str(e)}")
             signature_valid = False
+            # Generate custom HMAC signature for logging/debugging
+            import hmac
+            import hashlib
+            msg = f"{rz_order_id}|{rz_payment_id}".encode('utf-8')
+            key = secret.strip().encode('utf-8')
+            local_sig = hmac.new(key, msg, hashlib.sha256).hexdigest()
+            print(f"[VERIFY] Generated local signature: {local_sig}")
+            print(f"[VERIFY] Received Razorpay signature: {rz_signature}")
         except Exception as e:
+            import traceback
+            print(f"[VERIFY] Unexpected verification error: {str(e)}")
+            print(traceback.format_exc())
             return Response(
-                {'error': f'Verification error: {str(e)}'},
+                {'error': f'Verification engine error: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -144,9 +169,14 @@ class VerifyPaymentView(APIView):
             order.is_paid = True
             order.status  = 'confirmed'
             order.save()
+            print(f"[VERIFY] Order #{order.id} marked as PAID and CONFIRMED.")
 
             # Dispatch Paid Order Confirmation Email
-            send_order_confirmation_email(order)
+            try:
+                send_order_confirmation_email(order)
+                print(f"[VERIFY] Async confirmation email dispatched to {order.user.email}")
+            except Exception as email_err:
+                print(f"[VERIFY] Non-blocking email dispatch error: {str(email_err)}")
 
             return Response({
                 'status': 'success',
@@ -156,10 +186,12 @@ class VerifyPaymentView(APIView):
         else:
             payment.status = 'failed'
             payment.save()
+            print("[VERIFY] Signature verification failed. Payment status set to failed.")
             return Response(
-                {'error': 'Invalid payment signature. Payment not verified.'},
+                {'error': 'Invalid payment signature. Verification failed.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
 
 
 class PaymentStatusView(APIView):
