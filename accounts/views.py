@@ -231,11 +231,20 @@ class RunDiagnosticsView(APIView):
         import sys
         import django
         import django.template.context
+        from django.db import connection
         
+        db_engine = connection.settings_dict.get('ENGINE', 'unknown')
+        db_name = connection.settings_dict.get('NAME', 'unknown')
+
         results = {
             "python_version": sys.version,
             "django_version": django.get_version(),
-            "patch_applied": hasattr(django.template.context.BaseContext.__copy__, "__code__") and "patched_copy" in django.template.context.BaseContext.__copy__.__code__.co_name
+            "patch_applied": hasattr(django.template.context.BaseContext.__copy__, "__code__") and "patched_copy" in django.template.context.BaseContext.__copy__.__code__.co_name,
+            "database": {
+                "engine": db_engine,
+                "name": str(db_name),
+                "is_postgres": "postgresql" in db_engine or "postgis" in db_engine or "cockroach" in db_engine
+            }
         }
         from django.test.client import Client
         from django.contrib.auth import get_user_model
