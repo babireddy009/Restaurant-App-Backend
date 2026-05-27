@@ -72,6 +72,12 @@ class UpdateOrderStatusView(APIView):
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        if order.status in ('cancelled', 'delivered'):
+            return Response(
+                {'error': f"Cannot update status of a finalized '{order.status}' order."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         serializer = UpdateOrderStatusSerializer(order, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         
@@ -253,3 +259,95 @@ class AnalyticsView(APIView):
             'avg_driver_rating': round(avg_driver_rating, 1),
             'top_items': top_items
         })
+
+
+class CancelOrderView(APIView):
+    """
+    Allows a customer to cancel their order.
+    - Prepaid (online) only (COD is not allowed).
+    - If status is 'pending' or 'confirmed' (before preparation): 100% refund.
+    - If status is 'preparing' or later: 0% refund (100% cancellation fee).
+    """
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, pk):
+        try:
+            order = Order.objects.get(pk=pk, user=request.user)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if order.payment_method == 'cod':
+            return Response(
+                {'error': 'Cancellation is only allowed for prepaid (online payment) orders.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if order.status == 'cancelled':
+            return Response({'error': 'This order has already been cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if order.status == 'delivered':
+            return Response({'error': 'Delivered orders cannot be cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Zomato policy logic:
+        # Before preparation ('pending', 'confirmed') -> Full refund
+        # During/After preparation ('preparing', 'ready', 'out_for_delivery') -> No refund (100% cancellation charge)
+        eligible_for_refund = order.status in ('pending', 'confirmed')
+        refund_issued = False
+        message = ""
+
+        # Set status to cancelled
+        old_status = order.status
+        order.status = 'cancelled'
+        order.save()
+
+        # Update order status email trigger
+        try:
+            send_order_status_update_email(order)
+        except Exception as email_err:
+            print(f"Failed to send cancellation status email: {email_err}")
+
+        if eligible_for_refund:
+            if order.is_paid:
+                try:
+                    from payments.models import Payment
+                    from payments.views import get_razorpay_client
+                    
+                    payment = getattr(order, 'payment', None)
+                    if payment and payment.razorpay_payment_id:
+                        if payment.razorpay_payment_id.startswith('pay_TEST_'):
+                            payment.status = 'refunded'
+                            payment.save()
+                            refund_issued = True
+                            message = "Your order has been cancelled and a full refund has been initiated back to your original payment method. [TEST MODE]"
+                        else:
+                            client = get_razorpay_client()
+                            # Call Razorpay Refund API
+                            client.refund.create({
+                                'payment_id': payment.razorpay_payment_id,
+                                'notes': {
+                                    'reason': f'Customer cancelled order #{order.id} before preparation.',
+                                    'order_id': str(order.id)
+                                }
+                            })
+                            payment.status = 'refunded'
+                            payment.save()
+                            refund_issued = True
+                            message = "Your order has been cancelled and a full refund has been initiated back to your original payment method."
+                except Exception as refund_err:
+                    print(f"Razorpay refund creation failed for order #{order.id}: {refund_err}")
+                    message = "Your order has been cancelled, but we encountered an issue processing the automatic refund. Our support team will process it manually shortly."
+            else:
+                # If online order but payment didn't clear
+                message = "Your unpaid order has been cancelled successfully."
+        else:
+            # Preparing or later
+            message = "Your order has been cancelled. As per Zomato's policy, since the kitchen had already started preparing your fresh food, no refund could be issued."
+
+        return Response({
+            'success': True,
+            'refund_issued': refund_issued,
+            'eligible_for_refund': eligible_for_refund,
+            'message': message,
+            'order': OrderSerializer(order).data
+        })
+

@@ -3,7 +3,7 @@ from .views import (
     OrderListCreateView, OrderDetailView, StaffOrderListView, 
     UpdateOrderStatusView, UpdateDriverLocationView, ConfirmDeliveryView, 
     DriverOrderView, DriverAvailableOrdersView, DriverMyDeliveriesView, AssignDriverView,
-    SubmitReviewView, AnalyticsView
+    SubmitReviewView, AnalyticsView, CancelOrderView
 )
 
 urlpatterns = [
@@ -19,4 +19,5 @@ urlpatterns = [
     path('driver/my-deliveries/', DriverMyDeliveriesView.as_view(), name='driver-my-deliveries'),
     path('<int:pk>/assign-driver/', AssignDriverView.as_view(), name='order-assign-driver'),
     path('<int:pk>/review/', SubmitReviewView.as_view(), name='order-submit-review'),
+    path('<int:pk>/cancel/', CancelOrderView.as_view(), name='order-cancel'),
 ]
