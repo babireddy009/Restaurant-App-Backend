@@ -29,7 +29,7 @@ class SendOTPView(APIView):
         otp = OTPVerification(identifier=identifier)
         otp.save()
 
-        # In a real app, send Email or SMS here via Twilio/SendGrid
+        # Send Email or SMS
         if "@" in identifier:
             from core.email_utils import send_mail_async
             send_mail_async(
@@ -38,14 +38,19 @@ class SendOTPView(APIView):
                 [identifier],
                 fail_silently=False,
             )
+        else:
+            from core.sms_utils import send_sms_async
+            send_sms_async(
+                identifier,
+                f"Your MSR Rayalaseema Ruchulu verification code is: {otp.otp_code}. Valid for 10 mins."
+            )
                 
         print(f"\n==========================================")
-        print(f" MOCK OTP SENT ")
-        print(f" TO: {identifier}")
-        print(f" OTP: {otp.otp_code}")
+        print(f" OTP SENT TO: {identifier}")
+        print(f" OTP CODE: {otp.otp_code}")
         print(f"==========================================\n")
 
-        return Response({"detail": "OTP sent successfully. Check your console/email/SMS."}, status=status.HTTP_200_OK)
+        return Response({"detail": "OTP sent successfully. Check your email or mobile SMS."}, status=status.HTTP_200_OK)
 
 class VerifyOTPView(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -56,9 +61,27 @@ class VerifyOTPView(APIView):
         identifier = serializer.validated_data['identifier']
         otp_code = serializer.validated_data['otp_code']
 
-        otp = OTPVerification.objects.get(identifier=identifier, otp_code=otp_code)
-        otp.is_verified = True
-        otp.save()
+        # Master OTP Bypass for test accounts or if bypass is enabled
+        import os
+        allow_bypass = os.getenv('ALLOW_MASTER_OTP', 'False').lower() == 'true'
+        is_test_account = identifier.startswith('998877') or identifier.startswith('+91998877') or identifier == 'test@restaurant.com'
+        
+        if (allow_bypass or is_test_account) and otp_code == '123456':
+            OTPVerification.objects.update_or_create(
+                identifier=identifier,
+                defaults={'otp_code': otp_code, 'is_verified': True}
+            )
+            return Response({"detail": "OTP verified successfully (Test Master Bypass)."}, status=status.HTTP_200_OK)
+
+        try:
+            otp = OTPVerification.objects.get(identifier=identifier, otp_code=otp_code)
+            otp.is_verified = True
+            otp.save()
+        except OTPVerification.DoesNotExist:
+            return Response(
+                {"otp_code": ["Invalid or expired OTP code. Please request a new one."]}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response({"detail": "OTP verified successfully. You can now register."}, status=status.HTTP_200_OK)
 
