@@ -27,8 +27,8 @@ class Command(BaseCommand):
                     
                     if not order.driver_lat or not order.driver_lng:
                         # Mock starting point (e.g., the restaurant)
-                        order.driver_lat = 17.4334
-                        order.driver_lng = 78.3867
+                        order.driver_lat = 15.6249
+                        order.driver_lng = 79.6227
                         order.driver_name = "Raju (Delivery Partner)"
                         order.driver_phone = "+919876543210"
 
