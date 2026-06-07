@@ -37,7 +37,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'user', 'status', 'status_display', 'total_amount', 'delivery_address',
+        fields = ('id', 'user', 'status', 'status_display', 'total_amount', 'delivery_address', 'delivery_phone',
                   'notes', 'payment_method', 'is_paid', 'items', 'created_at', 'updated_at',
                   'delivery_lat', 'delivery_lng', 'driver_lat', 'driver_lng', 'driver_name', 'driver_phone', 'delivery_otp', 'review')
         read_only_fields = ('id', 'user', 'total_amount', 'is_paid', 'created_at', 'updated_at', 'delivery_otp', 'review')
@@ -46,6 +46,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class CreateOrderSerializer(serializers.Serializer):
     items = OrderItemCreateSerializer(many=True)
     delivery_address = serializers.CharField()
+    delivery_phone = serializers.CharField(max_length=20)
     delivery_lat = serializers.FloatField(required=False, allow_null=True)
     delivery_lng = serializers.FloatField(required=False, allow_null=True)
     notes = serializers.CharField(required=False, allow_blank=True)
@@ -55,6 +56,22 @@ class CreateOrderSerializer(serializers.Serializer):
         if not items:
             raise serializers.ValidationError("Order must have at least one item.")
         return items
+
+    def validate_delivery_phone(self, value):
+        if not value:
+            raise serializers.ValidationError("Mobile number is required.")
+        # Strip non-digits
+        clean_val = ''.join(c for c in value if c.isdigit())
+        # Strip leading 0
+        if clean_val.startswith('0') and len(clean_val) == 11:
+            clean_val = clean_val[1:]
+        # Strip leading 91
+        elif clean_val.startswith('91') and len(clean_val) == 12:
+            clean_val = clean_val[2:]
+            
+        if len(clean_val) != 10 or not clean_val[0] in '6789':
+            raise serializers.ValidationError("Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).")
+        return clean_val
 
     def validate(self, attrs):
         delivery_lat = attrs.get('delivery_lat')

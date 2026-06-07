@@ -40,7 +40,7 @@ class OrderAdmin(admin.ModelAdmin):
             'fields': ('user', 'status', 'is_paid', 'payment_method', 'total_amount')
         }),
         ('📍 Delivery Information', {
-            'fields': ('delivery_address', 'delivery_lat', 'delivery_lng', 'notes')
+            'fields': ('delivery_address', 'delivery_phone', 'delivery_lat', 'delivery_lng', 'notes')
         }),
         ('🛵 Driver & Tracking', {
             'fields': ('driver', 'delivery_otp', 'driver_name', 'driver_phone', 'driver_lat', 'driver_lng'),
@@ -63,7 +63,7 @@ class OrderAdmin(admin.ModelAdmin):
     customer_name.short_description = '👤 Customer'
 
     def customer_phone(self, obj):
-        return obj.user.phone or '—'
+        return obj.delivery_phone or obj.user.phone or '—'
     customer_phone.short_description = '📞 Phone'
 
     def total_display(self, obj):

@@ -18,6 +18,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     delivery_address = models.TextField()
+    delivery_phone = models.CharField(max_length=20, default='', blank=True)
     notes = models.TextField(blank=True)
     payment_method = models.CharField(max_length=50, default='online')  # 'online' or 'cod'
     is_paid = models.BooleanField(default=False)
