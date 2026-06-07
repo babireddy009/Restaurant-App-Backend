@@ -56,6 +56,42 @@ class CreateOrderSerializer(serializers.Serializer):
             raise serializers.ValidationError("Order must have at least one item.")
         return items
 
+    def validate(self, attrs):
+        delivery_lat = attrs.get('delivery_lat')
+        delivery_lng = attrs.get('delivery_lng')
+        
+        if delivery_lat is None or delivery_lng is None:
+            raise serializers.ValidationError({
+                "location": "Delivery coordinates are required to verify delivery eligibility. Please select your location on the map."
+            })
+            
+        # Restaurant location: MSR Rayalaseema Ruchulu (Podili)
+        RESTAURANT_LAT = 15.6249768
+        RESTAURANT_LNG = 79.6233953
+        
+        # Calculate Haversine distance
+        import math
+        R = 6371.0  # Radius of Earth in km
+        
+        lat1 = math.radians(RESTAURANT_LAT)
+        lon1 = math.radians(RESTAURANT_LNG)
+        lat2 = math.radians(delivery_lat)
+        lon2 = math.radians(delivery_lng)
+        
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        
+        a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        distance = R * c
+        
+        if distance > 10.0:
+            raise serializers.ValidationError({
+                "location": f"We do not deliver to this location. Delivery is only available within 10 km. (Your distance: {distance:.2f} km)"
+            })
+            
+        return attrs
+
     def create(self, validated_data):
         user = self.context['request'].user
         items_data = validated_data.pop('items')
